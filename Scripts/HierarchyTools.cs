@@ -23,12 +23,24 @@ namespace LoTekK.Tools.Editor
         const string showIndentRainbowKey = "bShowIndentRainbow";
         static Color disabledColor = new Color(0.1f, 0.1f, 0.1f, 0.5f);
         static readonly string s_SearchPathPackage = "Packages/com.ltk.hierarchy/";
+        static Texture texGradient;
+        static Texture2D iconDisabled;
+        static Texture2D iconEnabled;
+        static Texture2D iconFind;
+        static Texture2D iconRemove;
+        static Texture2D iconSave;
 
         static HierarchyTools()
         {
             EditorApplication.hierarchyWindowItemOnGUI += HierarchyTools.OnHierarchyGUI;
             showComponentIcons = EditorPrefs.GetBool(showComponentIconsKey, true);
             showIndentRainbow = EditorPrefs.GetBool(showIndentRainbowKey, false);
+            texGradient = AssetDatabase.LoadAssetAtPath<Texture>(s_SearchPathPackage + "Icons/IconGradient.psd");
+            iconEnabled = AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconEnabled.png");
+            iconDisabled = AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconDisabled.png");
+            iconFind = AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconFind.png");
+            iconRemove = AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconRemove.png");
+            iconSave = AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconSave.png");
         }
 
         [PreferenceItem("Hierarchy Tools")]
@@ -75,8 +87,8 @@ namespace LoTekK.Tools.Editor
                 buttonRect.y += 1;
 
                 GUI.DrawTexture(buttonRect, g.activeSelf
-                    ? AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconEnabled.png")
-                    : AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconDisabled.png"));
+                    ? iconEnabled
+                    : iconDisabled);
 
                 if (e.isMouse && e.type == EventType.MouseDown && buttonRect.Contains(e.mousePosition))
                 {
@@ -125,7 +137,7 @@ namespace LoTekK.Tools.Editor
                     {
                         if (!b.enabled)
                         {
-                            GUI.DrawTexture(new RectOffset(-(int)(buttonDim * 0.4f), 0, -(int)(buttonDim * 0.4f), 0).Add(buttonRect), AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconRemove.png"));
+                            GUI.DrawTexture(new RectOffset(-(int)(buttonDim * 0.4f), 0, -(int)(buttonDim * 0.4f), 0).Add(buttonRect), iconRemove);
                             EditorGUI.DrawRect(buttonRect, new Color(1, 0, 0, 0.25f));
                         }
                     }
@@ -136,7 +148,7 @@ namespace LoTekK.Tools.Editor
                         {
                             if (!(bool)t.InvokeMember("get_enabled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, component, null))
                             {
-                                GUI.DrawTexture(new RectOffset(-(int)(buttonDim * 0.4f), 0, -(int)(buttonDim * 0.4f), 0).Add(buttonRect), AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconRemove.png"));
+                                GUI.DrawTexture(new RectOffset(-(int)(buttonDim * 0.4f), 0, -(int)(buttonDim * 0.4f), 0).Add(buttonRect), iconRemove);
                                 EditorGUI.DrawRect(buttonRect, new Color(1, 0, 0, 0.25f));
                             }
                         }
@@ -160,7 +172,7 @@ namespace LoTekK.Tools.Editor
                 {
                     GUI.color = colors[(i) % colors.Length];
                     // EditorGUI.DrawRect(new Rect(1 + (i + 1) * 14 + (14 - width), selectionRect.yMin, width, selectionRect.height), colors[(i) % colors.Length] / opacity);
-                    GUI.DrawTexture(new Rect(1 + (i + 1) * 14, selectionRect.yMin, 14, selectionRect.height), AssetDatabase.LoadAssetAtPath<Texture>(s_SearchPathPackage + "Icons/IconGradient.psd"));
+                    GUI.DrawTexture(new Rect(1 + (i + 1) * 14, selectionRect.yMin, 14, selectionRect.height), texGradient);
                     GUI.color = Color.white;
                 }
                 return;
@@ -172,7 +184,7 @@ namespace LoTekK.Tools.Editor
             selectionRect.width = buttonDim;
             using (new EditorGUI.DisabledScope(EditorSceneManager.sceneCount <= 1))
             {
-                if (GUI.Button(selectionRect, new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconRemove.png"), "Remove scene"), buttonStyle))
+                if (GUI.Button(selectionRect, new GUIContent(iconRemove, "Remove scene"), buttonStyle))
                 {
                     GenericMenu menu = new GenericMenu();
                     menu.AddItem(new GUIContent("Remove Scene"), false, () =>
@@ -198,7 +210,7 @@ namespace LoTekK.Tools.Editor
             }
             using (new EditorGUI.DisabledScope(scene.isLoaded && EditorSceneManager.loadedSceneCount == 1))
             {
-                if (GUI.Button(selectionRect, scene.isLoaded ? new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconEnabled.png"), "Unload Scene") : new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconDisabled.png"), "Load Scene"), buttonStyle))
+                if (GUI.Button(selectionRect, scene.isLoaded ? new GUIContent(iconEnabled, "Unload Scene") : new GUIContent(iconDisabled, "Load Scene"), buttonStyle))
                 {
                     if (scene.isLoaded)
                     {
@@ -241,7 +253,7 @@ namespace LoTekK.Tools.Editor
             selectionRect.x -= buttonDim + padding;
             using (new EditorGUI.DisabledScope(!scene.isDirty))
             {
-                if (GUI.Button(selectionRect, new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconSave.png"), "Save this scene"), buttonStyle))
+                if (GUI.Button(selectionRect, new GUIContent(iconSave, "Save this scene"), buttonStyle))
                 {
                     EditorSceneManager.SaveScene(scene, scene.path);
                 }
@@ -255,7 +267,7 @@ namespace LoTekK.Tools.Editor
             if (!string.IsNullOrEmpty(scene.path))
             {
                 selectionRect.x -= buttonDim + padding;
-                if (GUI.Button(selectionRect, new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconFind.png"), "Locate Scene Asset"), buttonStyle))
+                if (GUI.Button(selectionRect, new GUIContent(iconFind, "Locate Scene Asset"), buttonStyle))
                 {
                     EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(scene.path));
                 }
