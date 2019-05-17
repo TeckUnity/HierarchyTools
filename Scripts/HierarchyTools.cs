@@ -53,11 +53,6 @@ namespace LoTekK.Tools.Editor
             }
         }
 
-        static T LoadAsset<T>(string path)
-        {
-            return AssetDatabase.LoadAssetAtPath<T>(s_SearchPathPackage + path);
-        }
-
         public static void OnHierarchyGUI(int instanceId, Rect selectionRect)
         {
             // if(buttonStyle == null)
@@ -80,8 +75,8 @@ namespace LoTekK.Tools.Editor
                 buttonRect.y += 1;
 
                 GUI.DrawTexture(buttonRect, g.activeSelf
-                    ? LoadAsset<Texture2D>("Icons/IconEnabled.png")
-                    : LoadAsset<Texture2D>("Icons/IconDisabled.png"));
+                    ? AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconEnabled.png")
+                    : AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconDisabled.png"));
 
                 if (e.isMouse && e.type == EventType.MouseDown && buttonRect.Contains(e.mousePosition))
                 {
@@ -130,7 +125,7 @@ namespace LoTekK.Tools.Editor
                     {
                         if (!b.enabled)
                         {
-                            GUI.DrawTexture(new RectOffset(-(int)(buttonDim * 0.4f), 0, -(int)(buttonDim * 0.4f), 0).Add(buttonRect), LoadAsset<Texture2D>("Icons/IconRemove.png"));
+                            GUI.DrawTexture(new RectOffset(-(int)(buttonDim * 0.4f), 0, -(int)(buttonDim * 0.4f), 0).Add(buttonRect), AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconRemove.png"));
                             EditorGUI.DrawRect(buttonRect, new Color(1, 0, 0, 0.25f));
                         }
                     }
@@ -141,7 +136,7 @@ namespace LoTekK.Tools.Editor
                         {
                             if (!(bool)t.InvokeMember("get_enabled", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance, null, component, null))
                             {
-                                GUI.DrawTexture(new RectOffset(-(int)(buttonDim * 0.4f), 0, -(int)(buttonDim * 0.4f), 0).Add(buttonRect), LoadAsset<Texture2D>("Icons/IconRemove.png"));
+                                GUI.DrawTexture(new RectOffset(-(int)(buttonDim * 0.4f), 0, -(int)(buttonDim * 0.4f), 0).Add(buttonRect), AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconRemove.png"));
                                 EditorGUI.DrawRect(buttonRect, new Color(1, 0, 0, 0.25f));
                             }
                         }
@@ -165,7 +160,7 @@ namespace LoTekK.Tools.Editor
                 {
                     GUI.color = colors[(i) % colors.Length];
                     // EditorGUI.DrawRect(new Rect(1 + (i + 1) * 14 + (14 - width), selectionRect.yMin, width, selectionRect.height), colors[(i) % colors.Length] / opacity);
-                    GUI.DrawTexture(new Rect(1 + (i + 1) * 14, selectionRect.yMin, 14, selectionRect.height), LoadAsset<Texture>("Icons/IconGradient.psd"));
+                    GUI.DrawTexture(new Rect(1 + (i + 1) * 14, selectionRect.yMin, 14, selectionRect.height), AssetDatabase.LoadAssetAtPath<Texture>(s_SearchPathPackage + "Icons/IconGradient.psd"));
                     GUI.color = Color.white;
                 }
                 return;
@@ -177,7 +172,7 @@ namespace LoTekK.Tools.Editor
             selectionRect.width = buttonDim;
             using (new EditorGUI.DisabledScope(EditorSceneManager.sceneCount <= 1))
             {
-                if (GUI.Button(selectionRect, new GUIContent(LoadAsset<Texture2D>("Icons/IconRemove.png"), "Remove scene"), buttonStyle))
+                if (GUI.Button(selectionRect, new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconRemove.png"), "Remove scene"), buttonStyle))
                 {
                     GenericMenu menu = new GenericMenu();
                     menu.AddItem(new GUIContent("Remove Scene"), false, () =>
@@ -203,7 +198,7 @@ namespace LoTekK.Tools.Editor
             }
             using (new EditorGUI.DisabledScope(scene.isLoaded && EditorSceneManager.loadedSceneCount == 1))
             {
-                if (GUI.Button(selectionRect, scene.isLoaded ? new GUIContent(LoadAsset<Texture2D>("Icons/IconEnabled.png"), "Unload Scene") : new GUIContent(LoadAsset<Texture2D>("Icons/IconDisabled.png"), "Load Scene"), buttonStyle))
+                if (GUI.Button(selectionRect, scene.isLoaded ? new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconEnabled.png"), "Unload Scene") : new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconDisabled.png"), "Load Scene"), buttonStyle))
                 {
                     if (scene.isLoaded)
                     {
@@ -246,7 +241,7 @@ namespace LoTekK.Tools.Editor
             selectionRect.x -= buttonDim + padding;
             using (new EditorGUI.DisabledScope(!scene.isDirty))
             {
-                if (GUI.Button(selectionRect, new GUIContent(LoadAsset<Texture2D>("Icons/IconSave.png"), "Save this scene"), buttonStyle))
+                if (GUI.Button(selectionRect, new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconSave.png"), "Save this scene"), buttonStyle))
                 {
                     EditorSceneManager.SaveScene(scene, scene.path);
                 }
@@ -260,9 +255,9 @@ namespace LoTekK.Tools.Editor
             if (!string.IsNullOrEmpty(scene.path))
             {
                 selectionRect.x -= buttonDim + padding;
-                if (GUI.Button(selectionRect, new GUIContent(LoadAsset<Texture2D>("Icons/IconFind.png"), "Locate Scene Asset"), buttonStyle))
+                if (GUI.Button(selectionRect, new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconFind.png"), "Locate Scene Asset"), buttonStyle))
                 {
-                    EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(scene.path));
+                    EditorGUIUtility.PingObject(AssetDatabase.AssetDatabase.LoadAssetAtPathAtPath<UnityEngine.Object>(scene.path));
                 }
             }
         }
