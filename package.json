@@ -1,0 +1,12 @@
+{
+    "name": "com.ltk.hierarchy",
+    "displayName": "Hierarchy Tools",
+    "version": "0.0.1",
+    "unity": "2018.1",
+    "description": "Extends Hierarchy window functionality.",
+    "keywords": [
+        "hierarchy",
+        "unity"
+    ],
+    "category": "Unity"
+}
