@@ -257,7 +257,7 @@ namespace LoTekK.Tools.Editor
                 selectionRect.x -= buttonDim + padding;
                 if (GUI.Button(selectionRect, new GUIContent(AssetDatabase.LoadAssetAtPath<Texture2D>(s_SearchPathPackage + "Icons/IconFind.png"), "Locate Scene Asset"), buttonStyle))
                 {
-                    EditorGUIUtility.PingObject(AssetDatabase.AssetDatabase.LoadAssetAtPathAtPath<UnityEngine.Object>(scene.path));
+                    EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(scene.path));
                 }
             }
         }
