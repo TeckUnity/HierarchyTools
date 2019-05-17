@@ -159,7 +159,7 @@ namespace LoTekK.Tools.Editor
                 {
                     GUI.color = colors[(i) % colors.Length];
                     // EditorGUI.DrawRect(new Rect(1 + (i + 1) * 14 + (14 - width), selectionRect.yMin, width, selectionRect.height), colors[(i) % colors.Length] / opacity);
-                    GUI.DrawTexture(new Rect(1 + (i + 1) * 14, selectionRect.yMin, 14, selectionRect.height), AssetDatabase.LoadAssetAtPath<Texture>("Assets/Tools/HierarchyTools/Editor/Icons/IconGradient.psd"));
+                    GUI.DrawTexture(new Rect(1 + (i + 1) * 14, selectionRect.yMin, 14, selectionRect.height), Resources.Load("IconGradient.psd"));
                     GUI.color = Color.white;
                 }
                 return;
