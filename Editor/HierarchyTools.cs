@@ -17,11 +17,10 @@ namespace LoTekK.Tools.Editor
         static float padding = 1;
         static float buttonDim;
         static GUIStyle buttonStyle;
-        static bool prefsLoaded;
         static bool showComponentIcons;
-        const string showComponentIconsKey = "bShowComponentIcons";
+        const string showComponentIconsKey = "showComponentIcons";
         static bool showIndentRainbow;
-        const string showIndentRainbowKey = "bShowIndentRainbow";
+        const string showIndentRainbowKey = "showIndentRainbow";
         static Color disabledColor = new Color(0.1f, 0.1f, 0.1f, 0.5f);
         static readonly string packagePath;// = "Packages/com.ltk.hierarchy/";
 
@@ -31,26 +30,39 @@ namespace LoTekK.Tools.Editor
             showComponentIcons = EditorPrefs.GetBool(showComponentIconsKey, true);
             showIndentRainbow = EditorPrefs.GetBool(showIndentRainbowKey, false);
             string[] search = AssetDatabase.FindAssets("t:asmdef HierarchyTools");
-            if(search.Length > 0)
+            if (search.Length > 0)
             {
                 packagePath = Regex.Match(AssetDatabase.GUIDToAssetPath(search[0]), ".*\\/").ToString();
             }
         }
 
+#if UNITY_2018_3_OR_NEWER
+        private class HierarchyToolsSettingsProvider : SettingsProvider
+        {
+            public HierarchyToolsSettingsProvider(string path, SettingsScope scopes = SettingsScope.User)
+            : base(path, scopes)
+            { }
+
+            public override void OnGUI(string searchContext)
+            {
+                HierarchyToolsPreferencesGUI();
+            }
+        }
+
+        [SettingsProvider]
+        static SettingsProvider MyNewPrefCode()
+        {
+            return new HierarchyToolsSettingsProvider("Preferences/Hierarchy Tools");
+        }
+#else
         [PreferenceItem("Hierarchy Tools")]
+#endif
         public static void HierarchyToolsPreferencesGUI()
         {
-            if (!prefsLoaded)
-            {
-                showComponentIcons = EditorPrefs.GetBool(showComponentIconsKey, true);
-                showIndentRainbow = EditorPrefs.GetBool(showIndentRainbowKey, false);
-                prefsLoaded = true;
-            }
-
             using (var c = new EditorGUI.ChangeCheckScope())
             {
-                showComponentIcons = EditorGUILayout.Toggle("Show Component Icons", showComponentIcons);
-                showIndentRainbow = EditorGUILayout.Toggle("Show Indent Rainbow", showIndentRainbow);
+                showComponentIcons = EditorGUILayout.Toggle("Show Component Icons", EditorPrefs.GetBool(showComponentIconsKey, true));
+                showIndentRainbow = EditorGUILayout.Toggle("Show Indent Rainbow", EditorPrefs.GetBool(showIndentRainbowKey, false));
                 if (c.changed)
                 {
                     EditorPrefs.SetBool(showComponentIconsKey, showComponentIcons);
@@ -89,13 +101,20 @@ namespace LoTekK.Tools.Editor
                     switch (e.button)
                     {
                         case 0:
+                            string prefix = g.activeSelf ? "Dis" : "En";
+                            Undo.RecordObject(g, $"{prefix}able {g.name}");
                             g.SetActive(!g.activeSelf);
+                            EditorUtility.SetDirty(g);
                             break;
                         case 1:
                             GenericMenu menu = new GenericMenu();
                             menu.AddItem(new GUIContent("Show Component Icons", ""), EditorPrefs.GetBool(showComponentIconsKey, true), () =>
                             {
                                 EditorPrefs.SetBool(showComponentIconsKey, !EditorPrefs.GetBool(showComponentIconsKey, true));
+                            });
+                            menu.AddItem(new GUIContent("Show Indent Rainbow", ""), EditorPrefs.GetBool(showIndentRainbowKey, true), () =>
+                            {
+                                EditorPrefs.SetBool(showIndentRainbowKey, !EditorPrefs.GetBool(showIndentRainbowKey, true));
                             });
                             menu.ShowAsContext();
                             break;
@@ -154,7 +173,7 @@ namespace LoTekK.Tools.Editor
                     GUI.Box(selectionRect, "");
                     GUI.color = Color.white;
                 }
-                if (!showIndentRainbow)
+                if (!EditorPrefs.GetBool(showIndentRainbowKey))
                 {
                     return;
                 }
